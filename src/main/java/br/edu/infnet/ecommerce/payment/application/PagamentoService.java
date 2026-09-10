@@ -5,6 +5,8 @@ import br.edu.infnet.ecommerce.payment.domain.enums.FormaPagamento;
 import br.edu.infnet.ecommerce.payment.domain.model.Pagamento;
 import br.edu.infnet.ecommerce.payment.domain.valueObject.Dinheiro;
 import br.edu.infnet.ecommerce.payment.domain.valueObject.NumeroCartao;
+import br.edu.infnet.ecommerce.payment.domain.valueObject.PedidoId;
+import br.edu.infnet.ecommerce.payment.domain.valueObject.UsuarioId;
 import br.edu.infnet.ecommerce.payment.infrastruture.payment.ResultadoProcessamento;
 import br.edu.infnet.ecommerce.payment.domain.repository.PagamentoRepository;
 import org.springframework.stereotype.Service;
@@ -27,8 +29,8 @@ public class PagamentoService {
     }
 
     public Pagamento processar(
-            Long pedidoId,
-            Long usuarioId,
+            PedidoId pedidoId,
+            UsuarioId usuarioId,
             BigDecimal valor,
             String formaPagamento,
             String numeroCartao

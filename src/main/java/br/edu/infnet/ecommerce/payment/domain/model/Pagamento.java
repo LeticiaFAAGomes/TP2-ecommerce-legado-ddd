@@ -2,18 +2,18 @@ package br.edu.infnet.ecommerce.payment.domain.model;
 
 import br.edu.infnet.ecommerce.payment.domain.enums.FormaPagamento;
 import br.edu.infnet.ecommerce.payment.domain.enums.StatusPagamento;
-import br.edu.infnet.ecommerce.payment.domain.valueObject.Dinheiro;
-import br.edu.infnet.ecommerce.payment.domain.valueObject.NumeroCartao;
-import br.edu.infnet.ecommerce.payment.domain.valueObject.PagamentoId;
+import br.edu.infnet.ecommerce.payment.domain.event.PagamentoAprovadoEvent;
+import br.edu.infnet.ecommerce.payment.domain.shared.AggregateRoot;
+import br.edu.infnet.ecommerce.payment.domain.valueObject.*;
 
 import java.time.LocalDateTime;
 
 
-public class Pagamento {
+public class Pagamento extends AggregateRoot {
 
     private PagamentoId id;
-    private Long pedidoId;
-    private Long usuarioId;
+    private PedidoId pedidoId;
+    private UsuarioId usuarioId;
     private Dinheiro valor;
     private FormaPagamento formaPagamento;
     private NumeroCartao numeroCartao;
@@ -26,8 +26,8 @@ public class Pagamento {
     }
 
     private Pagamento(
-            Long pedidoId,
-            Long usuarioId,
+            PedidoId pedidoId,
+            UsuarioId usuarioId,
             Dinheiro valor,
             FormaPagamento formaPagamento,
             NumeroCartao numeroCartao
@@ -57,8 +57,8 @@ public class Pagamento {
     }
 
     public static Pagamento criar(
-            Long pedidoId,
-            Long usuarioId,
+            PedidoId pedidoId,
+            UsuarioId usuarioId,
             Dinheiro valor,
             FormaPagamento formaPagamento,
             NumeroCartao numeroCartao
@@ -74,8 +74,8 @@ public class Pagamento {
 
     public static Pagamento reconstruir(
         PagamentoId id,
-        Long pedidoId,
-        Long usuarioId,
+        PedidoId pedidoId,
+        UsuarioId usuarioId,
         Dinheiro valor,
         FormaPagamento formaPagamento,
         NumeroCartao numeroCartao,
@@ -106,6 +106,9 @@ public class Pagamento {
         this.motivo = null;
         this.codigoAutorizacao = codigoAutorizacao;
         this.processadoEm = LocalDateTime.now();
+
+        this.registrarEvento(new PagamentoAprovadoEvent(
+                this.id.valor(), this.pedidoId.valor(), this.processadoEm));
     }
 
     public void recusar(String motivo) {
@@ -120,11 +123,11 @@ public class Pagamento {
     }
 
     public Long getPedidoId() {
-        return pedidoId;
+        return pedidoId.valor();
     }
 
     public Long getUsuarioId() {
-        return usuarioId;
+        return usuarioId.valor();
     }
 
     public Dinheiro getValor() {

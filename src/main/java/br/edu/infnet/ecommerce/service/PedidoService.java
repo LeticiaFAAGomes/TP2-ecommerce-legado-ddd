@@ -6,6 +6,8 @@ import br.edu.infnet.ecommerce.exception.PagamentoRecusadoException;
 import br.edu.infnet.ecommerce.exception.RecursoNaoEncontradoException;
 import br.edu.infnet.ecommerce.payment.application.PagamentoService;
 import br.edu.infnet.ecommerce.payment.domain.model.Pagamento;
+import br.edu.infnet.ecommerce.payment.domain.valueObject.PedidoId;
+import br.edu.infnet.ecommerce.payment.domain.valueObject.UsuarioId;
 import br.edu.infnet.ecommerce.repository.*;
 import br.edu.infnet.ecommerce.request.CriarPedidoRequest;
 import br.edu.infnet.ecommerce.request.ItemPedidoRequest;
@@ -60,7 +62,6 @@ public class PedidoService {
 
     @Transactional
     public Pedido criar(CriarPedidoRequest request) {
-
         Usuario usuario = usuarioRepository.findById(request.usuarioId())
                 .orElseThrow(() -> new RecursoNaoEncontradoException(
                         "Usuário não encontrado: " + request.usuarioId()
@@ -71,11 +72,9 @@ public class PedidoService {
         }
 
         Pedido pedido = new Pedido(usuario);
-
         BigDecimal total = BigDecimal.ZERO;
 
         for (ItemPedidoRequest itemRequest : request.itens()) {
-
             Produto produto = produtoRepository.findById(
                     itemRequest.produtoId()
             ).orElseThrow(() -> new RecursoNaoEncontradoException(
@@ -108,7 +107,6 @@ public class PedidoService {
             );
 
             estoqueRepository.save(estoque);
-
             ItemPedido item = new ItemPedido(
                     produto,
                     itemRequest.quantidade(),
@@ -116,27 +114,22 @@ public class PedidoService {
             );
 
             pedido.adicionarItem(item);
-
             total = total.add(item.getSubtotal());
         }
 
         pedido.setValorTotal(total);
         pedido.setStatus("AGUARDANDO_PAGAMENTO");
-
         Pedido pedidoSalvo = pedidoRepository.save(pedido);
-
         Pagamento pagamento = pagamentoService.processar(
-                pedidoSalvo.getId(),
-                usuario.getId(),
+                new PedidoId(pedidoSalvo.getId()),
+                new UsuarioId(usuario.getId()),
                 total,
                 request.formaPagamento(),
                 request.numeroCartao()
         );
 
         if (pagamento.getStatus().name().equals("RECUSADO")) {
-
             pedidoSalvo.setStatus("PAGAMENTO_RECUSADO");
-
             pedidoRepository.save(pedidoSalvo);
 
             throw new PagamentoRecusadoException(

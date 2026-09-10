@@ -3,10 +3,8 @@ package br.edu.infnet.ecommerce.payment.infrastruture.persistence;
 import br.edu.infnet.ecommerce.payment.domain.model.Pagamento;
 import br.edu.infnet.ecommerce.payment.domain.repository.PagamentoRepository;
 
-import br.edu.infnet.ecommerce.payment.domain.valueObject.Dinheiro;
-import br.edu.infnet.ecommerce.payment.domain.valueObject.NumeroCartao;
+import br.edu.infnet.ecommerce.payment.domain.valueObject.*;
 import org.springframework.stereotype.Repository;
-import br.edu.infnet.ecommerce.payment.domain.valueObject.PagamentoId;
 
 import java.util.Optional;
 
@@ -50,8 +48,8 @@ public class PagamentoRepositoryImpl implements PagamentoRepository {
 
         return Pagamento.reconstruir(
                 PagamentoId.de(salvo.getId()),
-                salvo.getPedidoId(),
-                salvo.getUsuarioId(),
+                PedidoId.de(salvo.getPedidoId()),
+                UsuarioId.de(salvo.getUsuarioId()),
                 Dinheiro.de(salvo.getValor()),
                 salvo.getFormaPagamento(),
                 null,
@@ -86,8 +84,8 @@ public class PagamentoRepositoryImpl implements PagamentoRepository {
 
         return Pagamento.reconstruir(
                 PagamentoId.de(entity.getId()),
-                entity.getPedidoId(),
-                entity.getUsuarioId(),
+                PedidoId.de(entity.getPedidoId()),
+                UsuarioId.de(entity.getUsuarioId()),
                 Dinheiro.de(entity.getValor()),
                 entity.getFormaPagamento(),
                 numeroCartao,
